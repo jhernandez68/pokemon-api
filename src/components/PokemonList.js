@@ -6,24 +6,30 @@ function PokemonList() {
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState('all')
   const [types, setTypes] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
       .then(r => r.json())
-      .then(d => {
+      .then(d =>
         Promise.all(d.results.map(p => fetch(p.url).then(r => r.json())))
-          .then(all => {
-            const list = all.map(p => ({
-              id: p.id,
-              name: p.name,
-              url: `https://pokeapi.co/api/v2/pokemon/${p.id}/`,
-              types: p.types.map(t => t.type.name)
-            }))
-            setPokemons(list)
-            setTypes(Array.from(new Set(list.flatMap(p => p.types))))
-          })
+      )
+      .then(all => {
+        const list = all.map(p => ({
+          id: p.id,
+          name: p.name,
+          url: `https://pokeapi.co/api/v2/pokemon/${p.id}/`,
+          types: p.types.map(t => t.type.name)
+        }))
+        setPokemons(list)
+        setTypes(Array.from(new Set(list.flatMap(p => p.types))))
+        setLoading(false)
       })
   }, [])
+
+  if (loading) {
+    return <p>Cargando pokémons...</p>
+  }
 
   const filtered = pokemons.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) &&

@@ -11,13 +11,18 @@ export default function PokemonDetail() {
   const [suggestions, setSuggestions] = useState([])
   const [battleResult, setBattleResult] = useState('')
   const [battleReason, setBattleReason] = useState('')
+  const [loading, setLoading] = useState(true)
 
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1)
 
   useEffect(() => {
+    setLoading(true)
     fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
       .then(r => r.json())
-      .then(setData)
+      .then(d => {
+        setData(d)
+        setLoading(false)
+      })
   }, [id])
 
   useEffect(() => {
@@ -75,7 +80,9 @@ export default function PokemonDetail() {
     }
   }
 
-  if (!data) return null
+  if (loading) {
+    return <p>Cargando detalles...</p>
+  }
 
   return (
     <div className="detail-page">
